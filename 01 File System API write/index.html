@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<button onclick="hello()">Write hello.txt</button>
+<script>
+async function hello() {
+  const folder = await showDirectoryPicker({ mode: "readwrite" });              // pick a folder (the browser asks to allow edits)
+  const file = await folder.getFileHandle("hello.txt", { create: true });       // make hello.txt in it
+  const out = await file.createWritable();
+  await out.write("hello world");
+  await out.close();                                                            // the file only appears on disk at close()
+}
+</script>
+
+</html> 

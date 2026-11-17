@@ -1,0 +1,35 @@
+<button onclick="show()">Show the saved folder</button>
+<pre id="out"></pre>
+<script>
+function show() {
+  const request = indexedDB.open("demo", 1);
+
+  request.onupgradeneeded = () => {
+    const db = request.result;
+    db.createObjectStore("handles");                       // first time only: make the store
+  };
+
+  request.onsuccess = () => {
+    const db = request.result;                             // the open database
+    const transaction = db.transaction("handles", "readonly");
+    const store = transaction.objectStore("handles");
+    const getRequest = store.get("folder");                // ask for whatever is saved under "folder"
+
+    getRequest.onsuccess = () => {                         // the read has been done
+      const folder = getRequest.result;                    // the handle, or undefined if nothing was saved
+      if (folder) {
+        document.getElementById("out").textContent = "Saved folder: " + folder.name;
+      } else {
+        document.getElementById("out").textContent = "No folder saved yet";
+      }
+    };
+    getRequest.onerror = () => {                           // the read failed
+      document.getElementById("out").textContent = "Couldn't read: " + getRequest.error;
+    };
+  };
+
+  request.onerror = () => {                                // the database wouldn't open
+    document.getElementById("out").textContent = "Couldn't open: " + request.error;
+  };
+}
+</script>

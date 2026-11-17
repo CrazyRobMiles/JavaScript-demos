@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<button onclick="show()">Read hello.txt</button>
+<pre id="out"></pre>
+<script>
+async function show() {
+  const folder = await showDirectoryPicker();                                   // pick the folder again (read is all it needs)
+  const file = await (await folder.getFileHandle("hello.txt")).getFile();       // no { create }: fails if it isn't there
+  document.getElementById("out").textContent = await file.text();
+}
+</script>
+</html> 

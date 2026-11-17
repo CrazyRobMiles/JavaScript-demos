@@ -1,0 +1,32 @@
+<button onclick="pick()">Choose a folder</button>
+<pre id="out"></pre>
+<script>
+async function pick() {
+  const folder = await showDirectoryPicker();
+
+  const request = indexedDB.open("demo", 1);
+
+  request.onupgradeneeded = () => {
+    const db = request.result;
+    db.createObjectStore("handles");                       // first time only: make the store
+  };
+
+  request.onsuccess = () => {
+    const db = request.result;                             // the open database
+    const transaction = db.transaction("handles", "readwrite");
+    const store = transaction.objectStore("handles");
+    store.put(folder, "folder");                           // ask for the handle to be saved under "folder"
+
+    transaction.oncomplete = () => {                       // the save has been done
+      document.getElementById("out").textContent = "Folder saved";
+    };
+    transaction.onerror = () => {                          // the save failed
+      document.getElementById("out").textContent = "Couldn't save: " + transaction.error;
+    };
+  };
+
+  request.onerror = () => {                                // the database wouldn't open
+    document.getElementById("out").textContent = "Couldn't open: " + request.error;
+  };
+}
+</script>
